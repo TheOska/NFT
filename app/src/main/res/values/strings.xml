@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NFX</string>
+    <string name="account_user_name">TheOska</string>
+    <string name="placeholder_email_address">theoska@outlook.com</string>
+    <string name="navigation_drawer_open">open</string>
+    <string name="navigation_drawer_close">close</string>
 </resources>

@@ -15,6 +15,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,7 +31,7 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends Activity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback{
+public class MainActivity extends AppCompatActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback ,NavigationView.OnNavigationItemSelectedListener{
 
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
@@ -35,7 +43,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback,
 
     Button btnStart, btnStop;
     TextView textViewTime;
-
+    private Toolbar mToolbar;
     boolean hasNFC = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +51,8 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback,
         setContentView(R.layout.activity_main);
         textInfo = (TextView)findViewById(R.id.info);
         textOut = (EditText)findViewById(R.id.textout);
-
+        initToolbar();
+        initDrawer();
         initTimer();
         hasNFC = hasNFCSupport();
         if(hasNFC)
@@ -132,6 +141,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback,
             NdefRecord pushMessage = inNdefRecords[0];
             String inMsg = new String(pushMessage.getPayload());
             textInfo.setText(inMsg);
+            timer.start();
         }
 
     }
@@ -197,5 +207,46 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback,
             textViewTime.setText("Completed.");
         }
 
+    }
+    private void initDrawer() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        MenuInflater inflater = getMenuInflater();
+
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initToolbar() {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+    }
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
