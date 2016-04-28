@@ -1,5 +1,6 @@
 package cm.nfx;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +10,12 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -27,7 +32,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import cm.nfx.util.BroadcastService;
@@ -35,33 +44,42 @@ import cm.nfx.util.BroadcastService;
 /**
  * Created by TheOSka on 27/4/2016.
  */
-public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback, NfcAdapter.OnNdefPushCompleteCallback,NavigationView.OnNavigationItemSelectedListener {
+public class PlayTimeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
-    TextView textInfo;
-    EditText textOut;
+//    TextView textInfo;
+    EditText txtTagContent;
+
     String GLOBAL_TRACK_LOG = "oska";
     String LOG_TAG_ACTIVITY = "PlayTimeActivity";
+
     NfcAdapter nfcAdapter;
+    ToggleButton tglReadWrite;
 
     TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
 
+    BroadcastService mBroadcastService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        mBroadcastService = new BroadcastService();
+//        startService(new Intent(PlayTimeActivity.this, mBroadcastReceiver.getClass()));
+//        startService(new Intent(MainActivity.this, BroadcastService.class));
+
 
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onCreate");
-        setContentView(R.layout.activity_main);
-        textInfo = (TextView) findViewById(R.id.info);
-        textOut = (EditText) findViewById(R.id.textout);
+        setContentView(R.layout.activity_play_time);
+        tglReadWrite = (ToggleButton) findViewById(R.id.tglReadWrite);
+        txtTagContent = (EditText) findViewById(R.id.txtTagContent);
         initToolbar();
         initDrawer();
         initTimer();
         hasNFC = hasNFCSupport();
-        if (hasNFC)
+        if (hasNFC) {
             initNFC();
+        }
     }
 
     private boolean hasNFCSupport() {
@@ -98,25 +116,14 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
             Toast.makeText(PlayTimeActivity.this,
                     "Set Callback(s)",
                     Toast.LENGTH_LONG).show();
-            nfcAdapter.setNdefPushMessageCallback(this, this);
-            nfcAdapter.setOnNdefPushCompleteCallback(this, this);
         }
     }
 
     private void initTimer() {
         serviceViewTimer = (TextView) findViewById(R.id.serviceViewTimer);
-        serviceViewTimer.setText("00:03:00");
+        serviceViewTimer.setText("");
     }
 
-    // receive message here
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        getNFCMessage();
-        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY+ " onResume");
-        registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
-        Log.i("MainActivity", "Registered broacast receiver");
-    }
 
     private void getNFCMessage() {
         Intent intent = getIntent();
@@ -127,7 +134,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
             NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
             NdefRecord pushMessage = inNdefRecords[0];
             String inMsg = new String(pushMessage.getPayload());
-            textInfo.setText(inMsg);
+//            textInfo.setText(inMsg);
 //            timer.start();
             startService(new Intent(PlayTimeActivity.this, BroadcastService.class));
 
@@ -135,7 +142,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
 
     }
 
-    private BroadcastReceiver br = new BroadcastReceiver() {
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateGUI(intent); // or whatever method used to update your GUI fields
@@ -145,38 +152,160 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
 
     @Override
     protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-    }
+        super.onNewIntent(intent);
 
-    @Override
-    public void onNdefPushComplete(NfcEvent event) {
 
-        runOnUiThread(new Runnable() {
+        if (intent.hasExtra(NfcAdapter.EXTRA_TAG)) {
+            Toast.makeText(this, "NfcIntent!", Toast.LENGTH_SHORT).show();
 
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "transmitted", Toast.LENGTH_LONG).show();
-//                timer.start();
-                startService(new Intent(PlayTimeActivity.this, BroadcastService.class));
+            if (tglReadWrite.isChecked()) {
+                Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+                if (parcelables != null && parcelables.length > 0) {
+                    readTextFromMessage((NdefMessage) parcelables[0]);
+                } else {
+                    Toast.makeText(this, "No NDEF messages found!", Toast.LENGTH_SHORT).show();
+                }
+
+            } else {
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                NdefMessage ndefMessage = createNdefMessage(txtTagContent.getText() + "");
+
+                writeNdefMessage(tag, ndefMessage);
             }
-        });
+
+        }
+    }
+
+    private void enableForegroundDispatchSystem() {
+        Intent intent = new Intent(this, PlayTimeActivity.class).addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        IntentFilter[] intentFilters = new IntentFilter[]{};
+        nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFilters, null);
+    }
+
+    private void disableForegroundDispatchSystem() {
+        Log.i(LOG_TAG_ACTIVITY,LOG_TAG_ACTIVITY + "disableForegroundDispatchSystem");
+        nfcAdapter.disableForegroundDispatch(this);
+    }
+
+    private void formatTag(Tag tag, NdefMessage ndefMessage) {
+        try {
+            NdefFormatable ndefFormatable = NdefFormatable.get(tag);
+
+            if (ndefFormatable == null) {
+                Toast.makeText(this, "Tag is not ndef formatable!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ndefFormatable.connect();
+            ndefFormatable.format(ndefMessage);
+            ndefFormatable.close();
+
+            Toast.makeText(this, "Message Writed", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Log.e("formatTag", e.getMessage());
+        }
 
     }
 
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
+    private void writeNdefMessage(Tag tag, NdefMessage ndefMessage) {
 
-        String stringOut = textOut.getText().toString();
-        byte[] bytesOut = stringOut.getBytes();
+        try {
+            if (tag == null) {
+                Toast.makeText(this, "Tag object cannot be null", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        NdefRecord ndefRecordOut = new NdefRecord(
-                NdefRecord.TNF_MIME_MEDIA,
-                "text/plain".getBytes(),
-                new byte[]{},
-                bytesOut);
+            Ndef ndef = Ndef.get(tag);
 
-        NdefMessage ndefMessageout = new NdefMessage(ndefRecordOut);
-        return ndefMessageout;
+            if (ndef == null) {
+                // format tag with the ndef format and writes the message.
+                formatTag(tag, ndefMessage);
+            } else {
+                ndef.connect();
+                // alert user the NFC tag  cannot write
+                if (!ndef.isWritable()) {
+                    Toast.makeText(this, "Tag is not writable!", Toast.LENGTH_SHORT).show();
+                    ndef.close();
+                    return;
+                }
+
+                ndef.writeNdefMessage(ndefMessage);
+                ndef.close();
+
+                Toast.makeText(this, "Tag writen!", Toast.LENGTH_SHORT).show();
+
+            }
+
+        } catch (Exception e) {
+            Log.e("writeNdefMessage", e.getMessage());
+        }
+
+    }
+
+
+    private NdefRecord createTextRecord(String content) {
+        try {
+            byte[] language;
+            language = Locale.getDefault().getLanguage().getBytes("UTF-8");
+
+            final byte[] text = content.getBytes("UTF-8");
+            final int languageSize = language.length;
+            final int textLength = text.length;
+            final ByteArrayOutputStream payload = new ByteArrayOutputStream(1 + languageSize + textLength);
+
+            payload.write((byte) (languageSize & 0x1F));
+            payload.write(language, 0, languageSize);
+            payload.write(text, 0, textLength);
+
+            return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], payload.toByteArray());
+
+        } catch (UnsupportedEncodingException e) {
+            Log.e("createTextRecord", e.getMessage());
+        }
+        return null;
+    }
+
+
+    private NdefMessage createNdefMessage(String content) {
+        NdefRecord ndefRecord = createTextRecord(content);
+        NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ndefRecord});
+        return ndefMessage;
+    }
+
+
+    public void tglReadWriteOnClick(View view) {
+        txtTagContent.setText("");
+    }
+
+
+    public String getTextFromNdefRecord(NdefRecord ndefRecord) {
+        String tagContent = null;
+        try {
+            byte[] payload = ndefRecord.getPayload();
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            int languageSize = payload[0] & 0063;
+            tagContent = new String(payload, languageSize + 1,
+                    payload.length - languageSize - 1, textEncoding);
+        } catch (UnsupportedEncodingException e) {
+            Log.e("getTextFromNdefRecord", e.getMessage(), e);
+        }
+        return tagContent;
+    }
+
+
+    private void readTextFromMessage(NdefMessage ndefMessage) {
+        NdefRecord[] ndefRecords = ndefMessage.getRecords();
+        if (ndefRecords != null && ndefRecords.length > 0) {
+            NdefRecord ndefRecord = ndefRecords[0];
+            String tagContent = getTextFromNdefRecord(ndefRecord);
+            txtTagContent.setText(tagContent);
+//            mBroadcastReceiver.set
+        } else {
+            Toast.makeText(this, "No NDEF records found!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
@@ -223,18 +352,31 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
         return true;
     }
 
+    // receive message here
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        getNFCMessage();
+        enableForegroundDispatchSystem();
+
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onResume");
+        registerReceiver(mBroadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR));
+        Log.i(LOG_TAG_ACTIVITY, "Registered broacast receiver");
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(GLOBAL_TRACK_LOG,LOG_TAG_ACTIVITY+ " onPause");
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onPause");
+        disableForegroundDispatchSystem();
 
 //        unregisterReceiver(br);
-        Log.i("MainActivity", "Unregistered broacast receiver");
+        Log.i(LOG_TAG_ACTIVITY, "Unregistered broacast receiver");
     }
 
     @Override
     protected void onStop() {
-        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY+" onStop");
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onStop");
 
 //        try {
 //            Log.i("MainActivity", "On Stop");
@@ -248,7 +390,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this, BroadcastService.class));
-        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY +"Stopped service");
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + "Stopped service");
         super.onDestroy();
     }
 
@@ -263,6 +405,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.Cr
             serviceViewTimer.setText(hms);
         }
     }
-    
+
 
 }

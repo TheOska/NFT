@@ -17,19 +17,21 @@ public class BroadcastService extends Service {
     Intent bi = new Intent(COUNTDOWN_BR);
 
     CountDownTimer cdt = null;
+    private long totalTimeInMilliSec = 360000;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
         Log.i(TAG, "Starting timer...");
 
-        cdt = new CountDownTimer(180000, 1000) {
+
+        cdt = new CountDownTimer(totalTimeInMilliSec, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
 
                 Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
                 bi.putExtra("countdown", millisUntilFinished);
+                totalTimeInMilliSec = millisUntilFinished;
                 sendBroadcast(bi);
             }
 
@@ -59,4 +61,9 @@ public class BroadcastService extends Service {
     public IBinder onBind(Intent arg0) {
         return null;
     }
+
+    public void setIncreaseTimeMilliSec(long increaseTimeInMilliSec) {
+        totalTimeInMilliSec += increaseTimeInMilliSec;
+    }
+
 }

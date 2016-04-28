@@ -2,14 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:layout_marginTop="?attr/actionBarSize"
-    >
+    tools:context=".MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,21 +33,39 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        tools:context=".MainActivity" >
+        tools:context=".MainActivity">
 
 
 
-
+            <EditText
+                android:id="@+id/txtTagContent"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_below="@+id/tglReadWrite"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="63dp" />
 
         <TextView
             android:id="@+id/serviceViewTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25sp"
+            android:layout_marginTop="54dp"
             android:text="time"
-            android:layout_below="@+id/btnStop"
-            android:layout_alignEnd="@+id/textViewTime"
-            android:layout_marginTop="53dp" />
+            android:textSize="25sp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <ToggleButton
+            android:id="@+id/tglReadWrite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:onClick="tglReadWriteOnClick"
+            android:textOff="Write"
+            android:textOn="Read"
+            android:layout_below="@+id/serviceViewTimer"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="45dp" />
 
     </RelativeLayout>
 </LinearLayout>

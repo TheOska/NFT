@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
 //            NdefRecord pushMessage = inNdefRecords[0];
 //            String inMsg = new String(pushMessage.getPayload());
 //            timer.start();
+
             startService(new Intent(MainActivity.this, BroadcastService.class));
 
         }
@@ -181,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
             public void run() {
                 Toast.makeText(getApplicationContext(),"transmitted",Toast.LENGTH_LONG).show();
 //                timer.start();
-                startService(new Intent(MainActivity.this, BroadcastService.class));
+//                startService(new Intent(MainActivity.this, BroadcastService.class));
             }
         });
 
