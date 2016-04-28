@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="190dp">
+
+    <LinearLayout
+        android:id="@+id/chosen_account_content_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start|left"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/navview_header_bottom_padding"
+        android:paddingEnd="@dimen/navview_end_padding"
+        android:paddingLeft="@dimen/navview_start_padding"
+        android:paddingRight="@dimen/navview_end_padding"
+        android:paddingStart="@dimen/navview_start_padding"
+        android:paddingTop="@dimen/navview_top_padding">
+
+        <ImageView
+            android:layout_marginTop="@dimen/icon_action_bar_margin"
+            android:layout_width="@dimen/navview_profile_image_size"
+            android:layout_height="@dimen/navview_profile_image_size"
+            android:layout_gravity="center"
+            android:src="@drawable/person_image_empty" />
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/icon_horizontal_margin"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/colorPrimaryText"
+            android:text="@string/account_user_name"
+            android:textSize="@dimen/user_name_text_size" />
+
+        <TextView
+            android:id="@+id/email_addr"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="@string/placeholder_email_address"
+            android:textSize="@dimen/app_text_size_large" />
+    </LinearLayout>
+</LinearLayout>

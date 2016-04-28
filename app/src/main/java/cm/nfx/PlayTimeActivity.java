@@ -1,8 +1,5 @@
 package cm.nfx;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,13 +8,11 @@ import android.content.pm.PackageManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -37,29 +32,35 @@ import java.util.concurrent.TimeUnit;
 
 import cm.nfx.util.BroadcastService;
 
-public class MainActivity extends AppCompatActivity implements CreateNdefMessageCallback, OnNdefPushCompleteCallback ,NavigationView.OnNavigationItemSelectedListener{
-
+/**
+ * Created by TheOSka on 27/4/2016.
+ */
+public class PlayTimeActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback, NfcAdapter.OnNdefPushCompleteCallback,NavigationView.OnNavigationItemSelectedListener {
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
-    NfcAdapter nfcAdapter;
-//    CounterClass timer;
-    String LOG_TAG_ACTIVITY = "MainActivity";
+    TextView textInfo;
+    EditText textOut;
     String GLOBAL_TRACK_LOG = "oska";
-    Button btnStart, btnStop;
-    TextView textViewTime;
+    String LOG_TAG_ACTIVITY = "PlayTimeActivity";
+    NfcAdapter nfcAdapter;
+
     TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onCreate");
         setContentView(R.layout.activity_main);
-        Log.i(GLOBAL_TRACK_LOG ,LOG_TAG_ACTIVITY+" onCreate");
+        textInfo = (TextView) findViewById(R.id.info);
+        textOut = (EditText) findViewById(R.id.textout);
         initToolbar();
         initDrawer();
         initTimer();
         hasNFC = hasNFCSupport();
-        if(hasNFC)
+        if (hasNFC)
             initNFC();
     }
 
@@ -79,8 +80,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
                     Toast.LENGTH_SHORT).show();
             return false;
 
-        }
-        else {
+        } else {
             // NFC and Android Beam file transfer is supported.
             Toast.makeText(this, "Android Beam is supported on your device.",
                     Toast.LENGTH_SHORT).show();
@@ -90,12 +90,12 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
 
     private void initNFC() {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(nfcAdapter==null){
-            Toast.makeText(MainActivity.this,
+        if (nfcAdapter == null) {
+            Toast.makeText(PlayTimeActivity.this,
                     "nfcAdapter==null, no NFC adapter exists",
                     Toast.LENGTH_LONG).show();
-        }else{
-            Toast.makeText(MainActivity.this,
+        } else {
+            Toast.makeText(PlayTimeActivity.this,
                     "Set Callback(s)",
                     Toast.LENGTH_LONG).show();
             nfcAdapter.setNdefPushMessageCallback(this, this);
@@ -104,56 +104,32 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
     }
 
     private void initTimer() {
-        btnStart = (Button) findViewById(R.id.btnStart);
-        btnStop = (Button) findViewById(R.id.btnStop);
-        textViewTime = (TextView) findViewById(R.id.textViewTime);
         serviceViewTimer = (TextView) findViewById(R.id.serviceViewTimer);
-//        textViewTime.setText("00:03:00");
-//        serviceViewTimer.setText("00:03:00");
-//        timer = new CounterClass(180000, 1000);
-
-        btnStart.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-//                timer.start();
-                startService(new Intent(MainActivity.this, BroadcastService.class));
-                startActivity(new Intent(MainActivity.this, PlayTimeActivity.class));
-            }
-        });
-
-        btnStop.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-//                timer.cancel();
-                stopService(new Intent(MainActivity.this, BroadcastService.class));
-
-            }
-        });
+        serviceViewTimer.setText("00:03:00");
     }
 
     // receive message here
     @Override
     protected void onResume() {
         super.onResume();
-        getNFCMessage();
-        Log.i(GLOBAL_TRACK_LOG , LOG_TAG_ACTIVITY+" onResume");
-//        registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
-//        Log.i(LOG_TAG_ACTIVITY, "Registered broacast receiver");
+//        getNFCMessage();
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY+ " onResume");
+        registerReceiver(br, new IntentFilter(BroadcastService.COUNTDOWN_BR));
+        Log.i("MainActivity", "Registered broacast receiver");
     }
 
     private void getNFCMessage() {
         Intent intent = getIntent();
         String action = intent.getAction();
-        if(action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
-//            Parcelable[] parcelables =  intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-//            NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
-//            NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
-//            NdefRecord pushMessage = inNdefRecords[0];
-//            String inMsg = new String(pushMessage.getPayload());
+        if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+            Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage inNdefMessage = (NdefMessage) parcelables[0];
+            NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
+            NdefRecord pushMessage = inNdefRecords[0];
+            String inMsg = new String(pushMessage.getPayload());
+            textInfo.setText(inMsg);
 //            timer.start();
-            startService(new Intent(MainActivity.this, BroadcastService.class));
+            startService(new Intent(PlayTimeActivity.this, BroadcastService.class));
 
         }
 
@@ -179,9 +155,9 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
 
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(),"transmitted",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "transmitted", Toast.LENGTH_LONG).show();
 //                timer.start();
-                startService(new Intent(MainActivity.this, BroadcastService.class));
+                startService(new Intent(PlayTimeActivity.this, BroadcastService.class));
             }
         });
 
@@ -190,13 +166,13 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
 
-        String stringOut = "";
+        String stringOut = textOut.getText().toString();
         byte[] bytesOut = stringOut.getBytes();
 
         NdefRecord ndefRecordOut = new NdefRecord(
                 NdefRecord.TNF_MIME_MEDIA,
                 "text/plain".getBytes(),
-                new byte[] {},
+                new byte[]{},
                 bytesOut);
 
         NdefMessage ndefMessageout = new NdefMessage(ndefRecordOut);
@@ -221,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
     }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -249,67 +226,43 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i(GLOBAL_TRACK_LOG,LOG_TAG_ACTIVITY+ " onPause");
+
 //        unregisterReceiver(br);
-        Log.i(GLOBAL_TRACK_LOG , LOG_TAG_ACTIVITY+" onPause");
+        Log.i("MainActivity", "Unregistered broacast receiver");
     }
 
     @Override
     protected void onStop() {
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY+" onStop");
+
 //        try {
-//            Log.i(LOG_TAG_ACTIVITY, "On Stop");
+//            Log.i("MainActivity", "On Stop");
 //            unregisterReceiver(br);
 //        } catch (Exception e) {
 //            // Receiver was probably already stopped in onPause()
 //        }
-        Log.i(GLOBAL_TRACK_LOG , LOG_TAG_ACTIVITY+"onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this, BroadcastService.class));
-        Log.i(GLOBAL_TRACK_LOG , LOG_TAG_ACTIVITY+"onDestroy");
+        Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY +"Stopped service");
         super.onDestroy();
     }
 
     private void updateGUI(Intent intent) {
         if (intent.getExtras() != null) {
             long millisUntilFinished = intent.getLongExtra("countdown", 0);
-            Log.i(GLOBAL_TRACK_LOG , "Countdown seconds remaining: " +  millisUntilFinished / 1000);
-
+            Log.i(LOG_TAG_ACTIVITY, "Countdown seconds remaining: " + millisUntilFinished / 1000);
             String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millisUntilFinished),
                     TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished)),
                     TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
             System.out.println(hms);
-            textViewTime.setText(hms);
+            serviceViewTimer.setText(hms);
         }
     }
-
-//    public class CounterClass extends CountDownTimer {
-//
-//        public CounterClass(long millisInFuture, long countDownInterval) {
-//            super(millisInFuture, countDownInterval);
-//        }
-//
-//        @SuppressLint("NewApi")
-//        @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-//        @Override
-//        public void onTick(long millisUntilFinished) {
-//
-//            long millis = millisUntilFinished;
-//            String hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
-//                    TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-//                    TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-//            System.out.println(hms);
-//            textViewTime.setText(hms);
-//        }
-//
-//        @Override
-//        public void onFinish() {
-//            // TODO Auto-generated method stub
-//            textViewTime.setText("Completed.");
-//        }
-//
-//    }
+    
 
 }
