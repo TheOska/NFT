@@ -5,6 +5,7 @@ package cm.nfx.util;
  */
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
@@ -17,15 +18,17 @@ public class BroadcastService extends Service {
     Intent bi = new Intent(COUNTDOWN_BR);
 
     CountDownTimer cdt = null;
+    private long startTime = 1000000;
     private long totalTimeInMilliSec = 360000;
 
+    IBinder mIBinder = new LocalBinder();
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "Starting timer...");
 
 
-        cdt = new CountDownTimer(totalTimeInMilliSec, 1000) {
+        cdt = new CountDownTimer(startTime, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
 
@@ -58,12 +61,57 @@ public class BroadcastService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
+    public IBinder onBind(Intent intent) {
+        return mIBinder;
     }
 
+    public class LocalBinder extends Binder {
+        public BroadcastService getServerInstance() {
+            return BroadcastService.this;
+        }
+
+    }
     public void setIncreaseTimeMilliSec(long increaseTimeInMilliSec) {
         totalTimeInMilliSec += increaseTimeInMilliSec;
+        cdt.cancel();
+        cdt = new CountDownTimer(totalTimeInMilliSec, 1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+                bi.putExtra("countdown", millisUntilFinished);
+                totalTimeInMilliSec = millisUntilFinished;
+                sendBroadcast(bi);
+            }
+
+            @Override
+            public void onFinish() {
+                Log.i(TAG, "Timer finished");
+            }
+        };
+
+        cdt.start();
     }
 
+    public void setDecreaseTimeMilliSec(long increaseTimeInMilliSec) {
+        totalTimeInMilliSec -= increaseTimeInMilliSec;
+        cdt.cancel();
+        cdt = new CountDownTimer(totalTimeInMilliSec, 1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+                bi.putExtra("countdown", millisUntilFinished);
+                totalTimeInMilliSec = millisUntilFinished;
+                sendBroadcast(bi);
+            }
+
+            @Override
+            public void onFinish() {
+                Log.i(TAG, "Timer finished");
+            }
+        };
+
+        cdt.start();
+    }
 }

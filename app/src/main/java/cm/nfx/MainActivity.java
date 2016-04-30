@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
             @Override
             public void onClick(View v) {
 //                timer.start();
-                startService(new Intent(MainActivity.this, BroadcastService.class));
+//                startService(new Intent(MainActivity.this, BroadcastService.class));
                 startActivity(new Intent(MainActivity.this, PlayTimeActivity.class));
             }
         });
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
 //            String inMsg = new String(pushMessage.getPayload());
 //            timer.start();
 
-            startService(new Intent(MainActivity.this, BroadcastService.class));
+//            startService(new Intent(MainActivity.this, BroadcastService.class));
 
         }
 
