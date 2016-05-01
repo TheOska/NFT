@@ -15,6 +15,7 @@ import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -51,22 +52,31 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
 //    TextView textInfo;
-    EditText txtTagContent;
+    EditText txtTagContent, txtTagContentReduceTime;
     boolean mBounded;
     private String GLOBAL_TRACK_LOG = "oska";
     private String LOG_TAG_ACTIVITY = "PlayTimeActivity";
     private String TAG_ADD_CARD = "+60";
     private String TAG_MINUS_CARD = "-60";
+    private String TEXT_MESSAGE_PREFIX = "You got secret message:\n\n";
+    private String MESSAGE_DIVIDER = "%";
+
+    private String substrMessage = "";
+    private String substrNum = "";
+    private boolean isSetMessage = false;
+    private boolean isSetNumber = false;
+    private TextView readNFCMessage, writeCardHints;
+
     NfcAdapter nfcAdapter;
     ToggleButton tglReadWrite;
 
-    Button addTimeBtn;
     TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
 
     private long TAG_ONE_MINUTE = 60000;
     BroadcastService mBroadcastService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,9 +87,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onCreate");
         setContentView(R.layout.activity_play_time);
-        tglReadWrite = (ToggleButton) findViewById(R.id.tglReadWrite);
-        addTimeBtn= (Button) findViewById(R.id.test_add_time);
-        txtTagContent = (EditText) findViewById(R.id.txtTagContent);
+
+        findAllView();
         initToolbar();
         initDrawer();
         initTimer();
@@ -87,10 +96,34 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         if (hasNFC) {
             initNFC();
         }
-        addTimeBtn.setOnClickListener(new View.OnClickListener() {
+        handleToggleBtn();
+
+    }
+
+    private void findAllView() {
+        tglReadWrite = (ToggleButton) findViewById(R.id.tglReadWrite);
+        txtTagContent = (EditText) findViewById(R.id.txtTagContent);
+        readNFCMessage = (TextView) findViewById(R.id.nfc_read_text);
+        writeCardHints = (TextView) findViewById(R.id.hints_1);
+        txtTagContentReduceTime = (EditText) findViewById(R.id.txt_tag_reduce_time);
+
+    }
+
+    private void handleToggleBtn() {
+        tglReadWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBroadcastService.setIncreaseTimeMilliSec(TAG_ONE_MINUTE);
+                // current is write
+                if(!tglReadWrite.isChecked()){
+                    txtTagContent.setVisibility(View.VISIBLE);
+                    txtTagContentReduceTime.setVisibility(View.VISIBLE);
+                    writeCardHints.setVisibility(View.VISIBLE);
+                }
+                else {
+                    txtTagContent.setVisibility(View.GONE);
+                    txtTagContentReduceTime.setVisibility(View.GONE);
+                    writeCardHints.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -99,6 +132,9 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(LOG_TAG_ACTIVITY, "onStart");
+//        Intent intent = getIntent();
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         Intent mIntent = new Intent(this, BroadcastService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
     }
@@ -206,7 +242,16 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
             } else {
                 Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                NdefMessage ndefMessage = createNdefMessage(txtTagContent.getText() + "");
+                String passMessage ="";
+                if(txtTagContentReduceTime.getText().toString() != "" ) {
+                    passMessage = txtTagContentReduceTime.getText().toString() + MESSAGE_DIVIDER;
+                    isSetNumber = true;
+                }
+                if(txtTagContent.getText().toString() != ""){
+                    passMessage += txtTagContent.getText().toString();
+                    isSetMessage = true;
+                }
+                NdefMessage ndefMessage = createNdefMessage(passMessage + "");
 
                 writeNdefMessage(tag, ndefMessage);
             }
@@ -312,9 +357,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     }
 
 
-    public void tglReadWriteOnClick(View view) {
-        txtTagContent.setText("");
-    }
 
 
     public String getTextFromNdefRecord(NdefRecord ndefRecord) {
@@ -337,9 +379,17 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         if (ndefRecords != null && ndefRecords.length > 0) {
             NdefRecord ndefRecord = ndefRecords[0];
             String tagContent = getTextFromNdefRecord(ndefRecord);
-            txtTagContent.setText(tagContent);
+
+            //Read people write message
+            if(!tagContent.equals(TAG_ADD_CARD) && !tagContent.equals(TAG_MINUS_CARD)) {
+                tagContent = handleSubStr(tagContent);
+                tagContent = TEXT_MESSAGE_PREFIX+= tagContent;
+                readNFCMessage.setText(tagContent);
+
+            }
             if(tagContent.toString().equals(TAG_ADD_CARD))
                 mBroadcastService.setIncreaseTimeMilliSec(TAG_ONE_MINUTE);
+
             if (tagContent.toString().equals(TAG_MINUS_CARD))
                 mBroadcastService.setDecreaseTimeMilliSec(TAG_ONE_MINUTE);
             Log.i("oskackh","content" + tagContent);
@@ -348,6 +398,12 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             Toast.makeText(this, "No NDEF records found!", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private String handleSubStr(String tagContent) {
+
+
+        return tagContent;
     }
 
 

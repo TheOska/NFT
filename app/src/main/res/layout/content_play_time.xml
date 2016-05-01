@@ -10,74 +10,86 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:autoLink="web"
-        android:text=""
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/textout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         tools:context=".MainActivity">
+        <!--android:visibility="invisible"-->
+
+        <TextView
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reduce Target Time (Notice that amount of reduction will reduce yourself at the same time)"
+            android:id="@+id/hints_1"
+            android:layout_below="@+id/tglReadWrite"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:visibility="gone"
+            android:id="@+id/txt_tag_reduce_time"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="Enter Minute (Optional)"
+            android:inputType="time"
+            android:layout_below="@+id/tglReadWrite"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="60dp" />
 
 
-
-            <EditText
-                android:id="@+id/txtTagContent"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_below="@+id/tglReadWrite"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="63dp" />
+        <EditText
+            android:visibility="gone"
+            android:id="@+id/txtTagContent"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="Leave your message to other player :)"
+            android:layout_marginTop="20dp"
+            android:layout_below="@+id/txt_tag_reduce_time"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:id="@+id/serviceViewTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="54dp"
             android:text="time"
-            android:textSize="25sp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            android:textSize="25sp" />
 
         <ToggleButton
             android:id="@+id/tglReadWrite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/serviceViewTimer"
+            android:layout_marginTop="45dp"
             android:checked="true"
             android:onClick="tglReadWriteOnClick"
             android:textOff="Write"
-            android:textOn="Read"
-            android:layout_below="@+id/serviceViewTimer"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="45dp" />
+            android:textOn="Read" />
 
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add time"
             android:id="@+id/test_add_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:background="#009688"
+            android:text="TranTime"
+            android:textColor="#EEEEEE" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/nfc_read_text"
+            android:textSize="22dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/hints_1" />
     </RelativeLayout>
-
-
 
 
 </LinearLayout>

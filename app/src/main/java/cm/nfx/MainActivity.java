@@ -118,7 +118,14 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
             public void onClick(View v) {
 //                timer.start();
 //                startService(new Intent(MainActivity.this, BroadcastService.class));
-                startActivity(new Intent(MainActivity.this, PlayTimeActivity.class));
+                Intent mIntent = new Intent(MainActivity.this, PlayTimeActivity.class);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                    mIntent.addFlags(0x8000); // equal to Intent.FLAG_ACTIVITY_CLEAR_TASK which is only available from API level 11
+                startActivity(mIntent);
+
+
             }
         });
 
@@ -203,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements CreateNdefMessage
         NdefMessage ndefMessageout = new NdefMessage(ndefRecordOut);
         return ndefMessageout;
     }
+
 
 
     private void initDrawer() {
