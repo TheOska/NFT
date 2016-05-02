@@ -63,8 +63,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
     private String substrMessage = "";
     private String substrNum = "";
-    private boolean isSetMessage = false;
-    private boolean isSetNumber = false;
     private TextView readNFCMessage, writeCardHints;
 
     NfcAdapter nfcAdapter;
@@ -133,8 +131,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     protected void onStart() {
         super.onStart();
         Log.i(LOG_TAG_ACTIVITY, "onStart");
-//        Intent intent = getIntent();
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         Intent mIntent = new Intent(this, BroadcastService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
     }
@@ -243,13 +239,12 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             } else {
                 Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 String passMessage ="";
-                if(txtTagContentReduceTime.getText().toString() != "" ) {
+                if(!txtTagContentReduceTime.getText().toString().isEmpty() ) {
+                    mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(txtTagContentReduceTime.getText().toString()) * TAG_ONE_MINUTE);
                     passMessage = txtTagContentReduceTime.getText().toString() + MESSAGE_DIVIDER;
-                    isSetNumber = true;
                 }
                 if(txtTagContent.getText().toString() != ""){
                     passMessage += txtTagContent.getText().toString();
-                    isSetMessage = true;
                 }
                 NdefMessage ndefMessage = createNdefMessage(passMessage + "");
 
@@ -378,12 +373,17 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         NdefRecord[] ndefRecords = ndefMessage.getRecords();
         if (ndefRecords != null && ndefRecords.length > 0) {
             NdefRecord ndefRecord = ndefRecords[0];
-            String tagContent = getTextFromNdefRecord(ndefRecord);
-
-            //Read people write message
+            String tagContent = "";
+            tagContent = getTextFromNdefRecord(ndefRecord);
             if(!tagContent.equals(TAG_ADD_CARD) && !tagContent.equals(TAG_MINUS_CARD)) {
+
+            readNFCMessage.setText(null);
+            //Read people write message
                 tagContent = handleSubStr(tagContent);
-                tagContent = TEXT_MESSAGE_PREFIX+= tagContent;
+                Log.i(LOG_TAG_ACTIVITY,"tagContent" + tagContent );
+
+                tagContent = TEXT_MESSAGE_PREFIX +  tagContent;
+
                 readNFCMessage.setText(tagContent);
 
             }
@@ -402,8 +402,32 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
     private String handleSubStr(String tagContent) {
 
-
-        return tagContent;
+        if(tagContent.indexOf(MESSAGE_DIVIDER) >= 0)
+        {
+            substrNum = tagContent.substring(0, tagContent.indexOf(MESSAGE_DIVIDER));
+            substrMessage = tagContent.substring(tagContent.indexOf(MESSAGE_DIVIDER) + 1, tagContent.length());
+            mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(substrNum) * TAG_ONE_MINUTE);
+            return substrMessage;
+        }else
+            return tagContent;
+//        if(isSetNumber && isSetMessage) {
+//            substrNum = tagContent.substring(0, tagContent.indexOf(MESSAGE_DIVIDER));
+//            substrMessage = tagContent.substring(tagContent.indexOf(MESSAGE_DIVIDER) + 1, tagContent.length());
+//            mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(substrNum) * TAG_ONE_MINUTE);
+//            resetStatus();
+//            return substrMessage;
+//        }
+//        if(isSetMessage && !isSetNumber){
+//            resetStatus();
+//            return tagContent;
+//        }
+//        if(isSetNumber && ! isSetMessage){
+//            resetStatus();
+//            substrNum = tagContent.substring(0, tagContent.indexOf(MESSAGE_DIVIDER));
+//            mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(substrNum) * TAG_ONE_MINUTE);
+//            return "";
+//        }
+//        return tagContent;
     }
 
 

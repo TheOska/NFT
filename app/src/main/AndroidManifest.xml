@@ -41,8 +41,6 @@
 
 
         </activity>
-        <activity android:name=".temp"
-            android:label="temp"/>
     </application>
 
 </manifest>
