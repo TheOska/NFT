@@ -1,72 +1,59 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context=".MainActivity"
     android:layout_marginTop="?attr/actionBarSize"
     >
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="TranTime"
+        android:id="@+id/textView"
         android:layout_gravity="center_horizontal"
-        android:autoLink="web"
-        android:text=""
-        android:textStyle="bold" />
+        android:textSize="34dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000" />
 
     <TextView
-        android:id="@+id/info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        tools:context=".MainActivity" >
-
-        <Button
-            android:id="@+id/btnStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="28dp"
-            android:text="Start" />
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="67dp"
-            android:text="Stop" />
-
-        <TextView
-        android:id="@+id/textViewTime"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnStop"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp"
-        android:textSize="25sp" />
+        android:text="This game called TranTime. For more detail, please check the Game User Guide."
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="55dp"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true" />
 
-        <TextView
-            android:id="@+id/serviceViewTimer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="time"
-            android:layout_below="@+id/btnStop"
-            android:layout_alignEnd="@+id/textViewTime"
-            android:layout_marginTop="53dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Before continue the game, please pull the left-hand side vertical navigation bar and click color setting to set your color base on what color you choose."
+        android:id="@+id/textView3"
+        android:layout_gravity="center_horizontal"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true" />
 
-    </RelativeLayout>
-</LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enjoy the game:)"
+        android:id="@+id/textView4"
+        android:layout_gravity="center_horizontal"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/textView3"
+        android:layout_marginTop="84dp"
+        android:layout_alignEnd="@+id/textView3" />
+</RelativeLayout>

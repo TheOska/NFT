@@ -4,27 +4,25 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:title="Import" />
+            android:id="@+id/nav_status"
+            android:title="Status" />
         <item
-            android:id="@+id/nav_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_color_setting"
+            android:title="Color setting" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_immune"
+            android:title="Immune x 0" />
+
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Other">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:title="Share" />
+                android:title="Share apk link to other" />
             <item
-                android:id="@+id/nav_send"
-                android:title="Send" />
+                android:id="@+id/nav_about_us"
+                android:title="About us" />
 
         </menu>
     </item>
