@@ -1,5 +1,7 @@
 package cm.nfx;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -11,17 +13,13 @@ import android.content.pm.PackageManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
-import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,7 +30,6 @@ import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,10 +68,11 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
-
+    private View btnView;
     private long TAG_ONE_MINUTE = 60000;
     BroadcastService mBroadcastService;
-
+    private Activity mActivity;
+    private NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,8 +80,10 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 //        startService(new Intent(PlayTimeActivity.this, mBroadcastReceiver.getClass()));
 //        startService(new Intent(MainActivity.this, BroadcastService.class));
 
-
+        mActivity = this;
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onCreate");
+
+        Utils.onActivityCreateSetTheme(this);
         setContentView(R.layout.activity_play_time);
 
         findAllView();
@@ -95,6 +95,12 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             initNFC();
         }
         handleToggleBtn();
+        btnView = findViewById(R.id.test_add_time);
+        Utils.changeBgCOlor(mActivity,btnView);
+        View header = navigationView.getHeaderView(0);
+        Utils.changeToTitleCOlor(mActivity,header);
+
+
 
     }
 
@@ -126,14 +132,30 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         });
     }
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.i(LOG_TAG_ACTIVITY, "onStart");
+       if(!isMyServiceRunning(BroadcastService.class)){
+
         Intent mIntent = new Intent(this, BroadcastService.class);
         bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+
+
+        }
     }
+
 
     ServiceConnection mConnection = new ServiceConnection() {
 
@@ -150,7 +172,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             mBroadcastService = mLocalBinder.getServerInstance();
         }
     };
-
     private boolean hasNFCSupport() {
         PackageManager pm = this.getPackageManager();
         // Check whether NFC is available on device
@@ -191,6 +212,15 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     private void initTimer() {
         serviceViewTimer = (TextView) findViewById(R.id.serviceViewTimer);
         serviceViewTimer.setText("");
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
+
     }
 
 
@@ -437,7 +467,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+         navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         MenuInflater inflater = getMenuInflater();
 
@@ -454,19 +484,17 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+//startActivity(new Intent(MainActivity.this, BroadcastService.class))
+        if (id == R.id.nav_status) {
+            Toast.makeText(this,"You already in this page!",Toast.LENGTH_LONG).show();
+        } else if (id == R.id.nav_color_setting) {
+            startActivity(new Intent(mActivity, ColorSettingActivity.class));
+        } else if (id == R.id.nav_immune) {
 
         } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            Utils.popUpAlertDialogWithQR(mActivity);
+        } else if (id == R.id.nav_about_us) {
+            Utils.popUpAlertDialog(mActivity);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -478,12 +506,19 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     @Override
     protected void onResume() {
         super.onResume();
-//        getNFCMessage();
+
+
+
+
         enableForegroundDispatchSystem();
 
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onResume");
+
         registerReceiver(mBroadcastReceiver, new IntentFilter(BroadcastService.COUNTDOWN_BR));
         Log.i(LOG_TAG_ACTIVITY, "Registered broacast receiver");
+
+
+
     }
 
     @Override
@@ -491,7 +526,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         super.onPause();
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onPause");
         disableForegroundDispatchSystem();
-
+        this.unregisterReceiver(mBroadcastReceiver);
 //        unregisterReceiver(br);
         Log.i(LOG_TAG_ACTIVITY, "Unregistered broacast receiver");
     }
@@ -500,6 +535,12 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     protected void onStop() {
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onStop");
         super.onStop();
+
+        // reset to 0 for next time enter this activity and start broadcase again
+       // this.unregisterReceiver(mBroadcastReceiver);
+       // Utils.BroadCastState = 0;
+
+
 //        if(mBounded) {
 //            unbindService(mConnection);
 //            mBounded = false;
@@ -516,6 +557,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this, BroadcastService.class));
+       // unregisterReceiver(mBroadcastReceiver);
+        this.unregisterReceiver(mBroadcastReceiver);
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + "Stopped service");
         super.onDestroy();
     }

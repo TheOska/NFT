@@ -29,6 +29,11 @@
             </intent-filter>
 
         </activity>
+        <activity android:name=".ColorSettingActivity"
+            android:label="ColorSetting">
+
+
+        </activity>
 
         <activity android:name=".PlayTimeActivity"
             android:label="TranTime">
