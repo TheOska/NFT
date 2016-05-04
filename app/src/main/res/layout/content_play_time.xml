@@ -19,6 +19,7 @@
         <!--android:visibility="invisible"-->
 
         <TextView
+
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,18 +29,20 @@
             android:layout_alignParentStart="true" />
 
         <EditText
+
             android:visibility="gone"
             android:id="@+id/txt_tag_reduce_time"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="Enter Minute (Optional)"
-            android:inputType="time"
-            android:layout_below="@+id/tglReadWrite"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="60dp" />
+            android:layout_height="80dp"
+            android:hint="Enter Minute \n(Optional, please enter positive integer!)"
+            android:inputType="number"
+            android:paddingBottom="10dp"
+            android:layout_alignTop="@+id/nfc_read_text"
+            android:layout_alignParentStart="true" />
 
 
         <EditText
+
             android:visibility="gone"
             android:id="@+id/txtTagContent"
             android:layout_width="match_parent"
@@ -58,7 +61,7 @@
             android:layout_marginTop="54dp"
             android:text="time"
             android:textSize="25sp"
-            android:textColor="000" />
+            android:textColor="#000" />
 
         <ToggleButton
             android:id="@+id/tglReadWrite"
@@ -90,6 +93,14 @@
             android:textSize="22dp"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/hints_1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Read other player card. (Remind you that you can always use Immune Card to not read one card if you got one :)"
+            android:id="@+id/hints_2"
+            android:layout_alignTop="@+id/nfc_read_text"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
 
