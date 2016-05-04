@@ -80,8 +80,13 @@ public class BroadcastService extends Service {
     }
 
     public void setIncreaseTimeMilliSec(long increaseTimeInMilliSec) {
-        totalTimeInMilliSec += increaseTimeInMilliSec;
+        if(Utils.identity==1) {
+            totalTimeInMilliSec += increaseTimeInMilliSec;
+        }else{
+            totalTimeInMilliSec += increaseTimeInMilliSec*2;
 
+
+        }
         Intent incIntent = new Intent("finishActivity");
         incIntent.putExtra("current", 0);
         sendBroadcast(incIntent);

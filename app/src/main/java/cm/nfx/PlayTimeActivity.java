@@ -293,12 +293,18 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
             } else {
                 Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                String passMessage ="";
-                if(!txtTagContentReduceTime.getText().toString().isEmpty() ) {
+                String passMessage = "";
+                if (!txtTagContentReduceTime.getText().toString().isEmpty()) {
                     mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(txtTagContentReduceTime.getText().toString()) * TAG_ONE_MINUTE);
-                    passMessage = txtTagContentReduceTime.getText().toString() + MESSAGE_DIVIDER;
+
+                    if (Utils.identity == 1) {
+                        passMessage = txtTagContentReduceTime.getText().toString() + MESSAGE_DIVIDER;
+                    } else {
+                        passMessage = Long.toString(Long.parseLong(txtTagContentReduceTime.getText().toString()) * 2) + MESSAGE_DIVIDER;
+
+                    }
                 }
-                if(txtTagContent.getText().toString() != ""){
+                if (txtTagContent.getText().toString() != "") {
                     passMessage += txtTagContent.getText().toString();
                 }
                 NdefMessage ndefMessage = createNdefMessage(passMessage + "");
@@ -368,7 +374,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 }
 
 
-
                 ndef.writeNdefMessage(ndefMessage);
 
                 ndef.close();
@@ -390,39 +395,39 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
 
     private NdefRecord createTextRecord(String content) {
-       // if (Utils.timerFinished == true) { // still have time - allow create Text Record
+        // if (Utils.timerFinished == true) { // still have time - allow create Text Record
 
-            try {
+        try {
 
-                byte[] language;
+            byte[] language;
 
-                language = Locale.getDefault().getLanguage().getBytes("UTF-8");
-
-
-                final byte[] text = content.getBytes("UTF-8");
-
-                final int languageSize = language.length;
-
-                final int textLength = text.length;
-
-                final ByteArrayOutputStream payload = new ByteArrayOutputStream(1 + languageSize + textLength);
+            language = Locale.getDefault().getLanguage().getBytes("UTF-8");
 
 
-                payload.write((byte) (languageSize & 0x1F));
+            final byte[] text = content.getBytes("UTF-8");
 
-                payload.write(language, 0, languageSize);
+            final int languageSize = language.length;
 
-                payload.write(text, 0, textLength);
+            final int textLength = text.length;
+
+            final ByteArrayOutputStream payload = new ByteArrayOutputStream(1 + languageSize + textLength);
 
 
-                return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], payload.toByteArray());
+            payload.write((byte) (languageSize & 0x1F));
+
+            payload.write(language, 0, languageSize);
+
+            payload.write(text, 0, textLength);
 
 
-            } catch (UnsupportedEncodingException e) {
+            return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], payload.toByteArray());
 
-                Log.e("createTextRecord", e.getMessage());
-            }
-       // }
+
+        } catch (UnsupportedEncodingException e) {
+
+            Log.e("createTextRecord", e.getMessage());
+        }
+        // }
         return null;
 
 
@@ -432,41 +437,41 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     private NdefMessage createNdefMessage(String content) {
         //if (Utils.timerFinished == true) { // still have time - allow create Ndef Message
 
-            NdefRecord ndefRecord = createTextRecord(content);
+        NdefRecord ndefRecord = createTextRecord(content);
 
-            NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ndefRecord});
+        NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ndefRecord});
 
-            return ndefMessage;
+        return ndefMessage;
 
-      //  }
+        //  }
 
     }
 
 
     public String getTextFromNdefRecord(NdefRecord ndefRecord) {
-      //  if (Utils.timerFinished == true) { // still have time - allow read nfc
+        //  if (Utils.timerFinished == true) { // still have time - allow read nfc
 
-            String tagContent = null;
+        String tagContent = null;
 
-            try {
+        try {
 
-                byte[] payload = ndefRecord.getPayload();
+            byte[] payload = ndefRecord.getPayload();
 
-                String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
 
-                int languageSize = payload[0] & 0063;
+            int languageSize = payload[0] & 0063;
 
-                tagContent = new String(payload, languageSize + 1,
+            tagContent = new String(payload, languageSize + 1,
 
-                        payload.length - languageSize - 1, textEncoding);
+                    payload.length - languageSize - 1, textEncoding);
 
-            } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
 
-                Log.e("getTextFromNdefRecord", e.getMessage(), e);
+            Log.e("getTextFromNdefRecord", e.getMessage(), e);
 
-            }
+        }
 
-            return tagContent;
+        return tagContent;
 
     }
 
@@ -477,7 +482,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             NdefRecord ndefRecord = ndefRecords[0];
             String tagContent = "";
             tagContent = getTextFromNdefRecord(ndefRecord);
-            if(!tagContent.equals(TAG_ADD_CARD) && !tagContent.equals(TAG_MINUS_CARD)) {
+            if (!tagContent.equals(TAG_ADD_CARD) && !tagContent.equals(TAG_MINUS_CARD)) {
 
 
                 readNFCMessage.setText(null);
@@ -486,23 +491,23 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 tagContent = handleSubStr(tagContent);
 
 
-                Log.i(LOG_TAG_ACTIVITY,"tagContent" + tagContent );
+                Log.i(LOG_TAG_ACTIVITY, "tagContent" + tagContent);
 
-                if(tagContent != null && !tagContent.isEmpty()) {
+                if (tagContent != null && !tagContent.isEmpty()) {
                     Utils.simpleAlertDialog(mActivity, TEXT_MESSAGE_PREFIX + tagContent);
                 }
 
                 // tagContent = TEXT_MESSAGE_PREFIX +  tagContent;
 
-              //  readNFCMessage.setText(tagContent);
+                //  readNFCMessage.setText(tagContent);
 
             }
-            if(tagContent.toString().equals(TAG_ADD_CARD))
+            if (tagContent.toString().equals(TAG_ADD_CARD))
                 mBroadcastService.setIncreaseTimeMilliSec(TAG_ONE_MINUTE);
 
             if (tagContent.toString().equals(TAG_MINUS_CARD))
                 mBroadcastService.setDecreaseTimeMilliSec(TAG_ONE_MINUTE);
-            Log.i("oskackh","content" + tagContent);
+            Log.i("oskackh", "content" + tagContent);
 //            mBroadcastReceiver.set
         } else {
             Toast.makeText(this, "No NDEF records found!", Toast.LENGTH_SHORT).show();
@@ -592,7 +597,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         super.onResume();
 
 
-
         enableForegroundDispatchSystem();
 
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onResume");
@@ -608,7 +612,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         super.onPause();
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + " onPause");
         disableForegroundDispatchSystem();
-
         this.unregisterReceiver(mBroadcastReceiver);
 //        unregisterReceiver(br);
         Log.i(LOG_TAG_ACTIVITY, "Unregistered broacast receiver");
@@ -632,7 +635,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 //            Log.i("MainActivity", "On Stop");
 //            unregisterReceiver(br);
 //        } catch (Exception e) {
-//            // Receiver was probably already stopped in onPause()
+//            // Receiver was probabthis.unregisterReceiver(mBroadcastReceiver);y already stopped in onPause()
 //        }
         super.onStop();
     }
@@ -641,7 +644,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     protected void onDestroy() {
 
 
-        this.unregisterReceiver(mBroadcastReceiver);
         this.unregisterReceiver(finishActivity);
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + "Stopped service");
         super.onDestroy();

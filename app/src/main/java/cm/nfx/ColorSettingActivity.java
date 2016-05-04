@@ -20,6 +20,7 @@ import android.widget.Toast;
  */
 public class ColorSettingActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private RadioGroup rgroup;
+    private RadioGroup radioGroupIdentity;
     private NavigationView NavigationView;
     private Toolbar mToolbar;
     private Activity mActivity;
@@ -42,13 +43,26 @@ public class ColorSettingActivity extends AppCompatActivity implements Navigatio
 
 
         startBtn = (Button) findViewById(R.id.start);
+        radioGroupIdentity = (RadioGroup) findViewById(R.id.identityGroup);
+
         btnGoHide();
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Utils.BUTTON_STATE = 1;
 
-                startActivity(new Intent(mActivity, PlayTimeActivity.class));
+                if(Utils.identity==0) {
+                    Utils.simpleAlertDialog( mActivity, "Please select poor man/ rich man base on the character card you choose.");
+
+                }else{
+                    Utils.BUTTON_STATE = 1;
+
+                    startActivity(new Intent(mActivity, PlayTimeActivity.class));
+
+
+
+                }
+
+
             }
         });
         Utils.changeBgCOlor(mActivity,startBtn);
@@ -57,13 +71,35 @@ public class ColorSettingActivity extends AppCompatActivity implements Navigatio
         rgroup = (RadioGroup) findViewById(R.id.rgroup);
         rgroup.setOnCheckedChangeListener(listener);
 
+
+
+        radioGroupIdentity.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // TODO Auto-generated method stub
+
+
+                if(checkedId == R.id.poorMan)
+                {
+                    Utils.identity = 1;
+                }
+                if(checkedId == R.id.richMan)
+                {
+                    Utils.identity = 2;
+                }
+
+
+            }
+        });
+
     }
 
     private void btnGoHide(){
 
         if(Utils.BUTTON_STATE==1){
 
-
+            radioGroupIdentity.setVisibility(View.INVISIBLE);
             startBtn.setVisibility(View.INVISIBLE);
         }
 

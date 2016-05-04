@@ -14,7 +14,8 @@ import cm.nfx.R;
 public class Utils
 {
     public static boolean timerFinished=false;
-    private static int sTheme=4;
+    private static  int sTheme=4;
+    public static int identity=0; // 0 not choosing, ask player to select; 1 poor man, 2 rich man
     public  static int BUTTON_STATE = 0; // 0 - show, 1 - hide
     public final static int THEME_RED = 0;
     public final static int THEME_BLUE = 1;
