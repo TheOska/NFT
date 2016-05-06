@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import cm.nfx.util.BroadcastService;
+import cm.nfx.util.Utils;
 
 /**
  * Created by TheOSka on 27/4/2016.
@@ -64,11 +66,10 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
     NfcAdapter nfcAdapter;
     ToggleButton tglReadWrite;
-
+    private Button btnTranTime;
     TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
-    private View btnView;
     private long TAG_ONE_MINUTE = 60000;
     BroadcastService mBroadcastService;
     private Activity mActivity;
@@ -95,13 +96,22 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             initNFC();
         }
         handleToggleBtn();
-        btnView = findViewById(R.id.test_add_time);
-        Utils.changeBgCOlor(mActivity,btnView);
+        handleTranTimeBtn();
+        Utils.changeBgCOlor(mActivity,btnTranTime);
         View header = navigationView.getHeaderView(0);
         Utils.changeToTitleCOlor(mActivity,header);
 
 
 
+    }
+
+    private void handleTranTimeBtn() {
+        btnTranTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(PlayTimeActivity.this, TranTime.class));
+            }
+        });
     }
 
     private void findAllView() {
@@ -110,7 +120,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         readNFCMessage = (TextView) findViewById(R.id.nfc_read_text);
         writeCardHints = (TextView) findViewById(R.id.hints_1);
         txtTagContentReduceTime = (EditText) findViewById(R.id.txt_tag_reduce_time);
-
+        btnTranTime = (Button) findViewById(R.id.btn_tran_time);
     }
 
     private void handleToggleBtn() {
@@ -147,10 +157,10 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     protected void onStart() {
         super.onStart();
         Log.i(LOG_TAG_ACTIVITY, "onStart");
-       if(!isMyServiceRunning(BroadcastService.class)){
+        if(!isMyServiceRunning(BroadcastService.class)){
 
-        Intent mIntent = new Intent(this, BroadcastService.class);
-        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+            Intent mIntent = new Intent(this, BroadcastService.class);
+            bindService(mIntent, mConnection, BIND_AUTO_CREATE);
 
 
         }
@@ -407,8 +417,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             tagContent = getTextFromNdefRecord(ndefRecord);
             if(!tagContent.equals(TAG_ADD_CARD) && !tagContent.equals(TAG_MINUS_CARD)) {
 
-            readNFCMessage.setText(null);
-            //Read people write message
+                readNFCMessage.setText(null);
+                //Read people write message
                 tagContent = handleSubStr(tagContent);
                 Log.i(LOG_TAG_ACTIVITY,"tagContent" + tagContent );
 
@@ -467,7 +477,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         MenuInflater inflater = getMenuInflater();
 
@@ -537,8 +547,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         super.onStop();
 
         // reset to 0 for next time enter this activity and start broadcase again
-       // this.unregisterReceiver(mBroadcastReceiver);
-       // Utils.BroadCastState = 0;
+        // this.unregisterReceiver(mBroadcastReceiver);
+        // Utils.BroadCastState = 0;
 
 
 //        if(mBounded) {
@@ -557,7 +567,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     @Override
     protected void onDestroy() {
 //        stopService(new Intent(this, BroadcastService.class));
-       // unregisterReceiver(mBroadcastReceiver);
+        // unregisterReceiver(mBroadcastReceiver);
         this.unregisterReceiver(mBroadcastReceiver);
         Log.i(GLOBAL_TRACK_LOG, LOG_TAG_ACTIVITY + "Stopped service");
         super.onDestroy();

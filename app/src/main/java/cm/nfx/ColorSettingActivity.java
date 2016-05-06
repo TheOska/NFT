@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import cm.nfx.util.Utils;
+
 /**
  * Created by paulck on 3/5/16.
  */

@@ -1,4 +1,4 @@
-package cm.nfx;
+package cm.nfx.util;
 
 import android.app.Activity;
 import android.content.DialogInterface;

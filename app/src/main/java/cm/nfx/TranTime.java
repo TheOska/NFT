@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,25 +35,27 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
 
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
-    NfcAdapter nfcAdapter;
+    private EditText mEditText;
 //    CounterClass timer;
-    String LOG_TAG_ACTIVITY = "MainActivity";
+    String LOG_TAG_ACTIVITY = "TranTime";
     String GLOBAL_TRACK_LOG = "oska";
-    Button btnStart, btnStop;
-    TextView textViewTime;
-    TextView serviceViewTimer;
     private Toolbar mToolbar;
     boolean hasNFC = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_tran_time);
+
+        mEditText = (EditText) findViewById(R.id.edt_tran_time);
+
         Log.i(GLOBAL_TRACK_LOG ,LOG_TAG_ACTIVITY+" onCreate");
         initToolbar();
         initDrawer();
         hasNFC = hasNFCSupport();
-        if(hasNFC)
-            initNFC();
+        if(hasNFC) {
+            NfcAdapter mAdapter = NfcAdapter.getDefaultAdapter(this);
+            mAdapter.setNdefPushMessageCallback(this, this);
+        }
     }
 
     private boolean hasNFCSupport() {
@@ -80,21 +83,6 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
         }
     }
 
-    private void initNFC() {
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(nfcAdapter==null){
-            Toast.makeText(TranTime.this,
-                    "nfcAdapter==null, no NFC adapter exists",
-                    Toast.LENGTH_LONG).show();
-        }else{
-            Toast.makeText(TranTime.this,
-                    "Set Callback(s)",
-                    Toast.LENGTH_LONG).show();
-
-        }
-    }
-
-
 
     // receive message here
     @Override
@@ -109,7 +97,7 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
     private void getNFCMessage() {
         Intent intent = getIntent();
         String action = intent.getAction();
-        if(action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+//        if(action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
 //            Parcelable[] parcelables =  intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 //            NdefMessage inNdefMessage = (NdefMessage)parcelables[0];
 //            NdefRecord[] inNdefRecords = inNdefMessage.getRecords();
@@ -119,7 +107,7 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
 
 //            startService(new Intent(MainActivity.this, BroadcastService.class));
 
-        }
+//        }
 
     }
 
@@ -135,17 +123,11 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
 
-        String stringOut = "";
-        byte[] bytesOut = stringOut.getBytes();
-
-        NdefRecord ndefRecordOut = new NdefRecord(
-                NdefRecord.TNF_MIME_MEDIA,
-                "text/plain".getBytes(),
-                new byte[] {},
-                bytesOut);
-
-        NdefMessage ndefMessageout = new NdefMessage(ndefRecordOut);
-        return ndefMessageout;
+        String message = mEditText.getText().toString();
+        NdefRecord ndefRecord = NdefRecord.createMime("text/plain", message.getBytes());
+        NdefMessage ndefMessage = new NdefMessage(ndefRecord);
+        Toast.makeText(this,"done read beam",Toast.LENGTH_LONG).show();
+        return ndefMessage;
     }
 
 
@@ -173,17 +155,15 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_status) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_color_setting) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_immune) {
 
         } else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_about_us) {
 
         }
 

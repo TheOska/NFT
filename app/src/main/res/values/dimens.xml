@@ -13,5 +13,8 @@
     <dimen name="icon_action_bar_margin">16dp</dimen>
 
     <dimen name="title_text_size">40dp</dimen>
+    <dimen name="distance_tv_edt">30dp</dimen>
+    <dimen name="tv_padding_left">10dp</dimen>
+    <dimen name="tv_padding_right">10dp</dimen>
 
 </resources>
