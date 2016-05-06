@@ -1,0 +1,29 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reduce Target Time (Notice that amount of reduction will reduce yourself at the same time)"
+        android:id="@+id/hints_1"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="@dimen/tv_padding_left"
+        android:paddingRight="@dimen/tv_padding_right"
+        android:paddingBottom="@dimen/distance_tv_edt"/>
+    <EditText
+        android:gravity="center_vertical|center"
+        android:id="@+id/edt_tran_time"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="Enter Minute"
+        android:inputType="time"
+        android:layout_below="@+id/tglReadWrite"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="60dp" />
+</RelativeLayout>
