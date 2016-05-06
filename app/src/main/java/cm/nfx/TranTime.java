@@ -36,7 +36,7 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
     // CreateNdefMessageCallback ->A callback to be invoked when another NFC device capable of
     // NDEF push (Android Beam) is within range
     private EditText mEditText;
-//    CounterClass timer;
+    //    CounterClass timer;
     String LOG_TAG_ACTIVITY = "TranTime";
     String GLOBAL_TRACK_LOG = "oska";
     private Toolbar mToolbar;
@@ -126,7 +126,7 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
         String message = mEditText.getText().toString();
         NdefRecord ndefRecord = NdefRecord.createMime("text/plain", message.getBytes());
         NdefMessage ndefMessage = new NdefMessage(ndefRecord);
-        Toast.makeText(this,"done read beam",Toast.LENGTH_LONG).show();
+//        Toast.makeText(this,"done read beam",Toast.LENGTH_LONG).show();
         return ndefMessage;
     }
 

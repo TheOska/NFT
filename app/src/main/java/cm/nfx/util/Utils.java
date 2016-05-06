@@ -13,7 +13,9 @@ import cm.nfx.R;
 
 public class Utils
 {
-    private static int sTheme=4;
+    public static boolean timerFinished=false;
+    private static  int sTheme=4;
+    public static int identity=0; // 0 not choosing, ask player to select; 1 poor man, 2 rich man
     public  static int BUTTON_STATE = 0; // 0 - show, 1 - hide
     public final static int THEME_RED = 0;
     public final static int THEME_BLUE = 1;
@@ -34,7 +36,7 @@ public class Utils
         bgcolors[1] = R.color.startColorBlue;
         bgcolors[2] = R.color.startColorYellow;
         bgcolors[3] = R.color.startColorPink;
-        bgcolors[4] =R.color.colorPrimary;
+        bgcolors[4] = R.color.colorPrimary;
 
         currentBgColor  = bgcolors[sTheme];
 
@@ -43,9 +45,6 @@ public class Utils
         } else {
             v.setBackground( mActivity.getResources().getDrawable(currentBgColor));
         }
-
-
-
 
     }
 
@@ -66,10 +65,9 @@ public class Utils
             v.setBackground( mActivity.getResources().getDrawable(currentColor));
         }
 
-
-
-
     }
+
+
     /**
      * Set the theme of the Activity, and restart it by creating a new Activity of the same type.
      */
@@ -100,6 +98,23 @@ public class Utils
                 activity.setTheme(R.style.AppTheme);
                 break;
         }
+    }
+
+
+
+    public static void simpleAlertDialog(Activity activity,String msg){
+
+        new AlertDialog.Builder(activity)
+                .setTitle("Notification")
+                .setMessage(msg)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with go back
+                    }
+                })
+                .setIcon(android.R.drawable.ic_menu_info_details)
+                .show();
+
     }
 
 

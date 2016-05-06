@@ -60,16 +60,37 @@
             android:layout_gravity="center_horizontal" />
     </RadioGroup>
 
+    <RadioGroup
+        android:layout_width="210dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:id="@+id/identityGroup"
+        android:layout_above="@+id/start"
+        android:layout_centerHorizontal="true">
 
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Poor man   "
+            android:id="@+id/poorMan" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rich man"
+            android:id="@+id/richMan" />
+
+    </RadioGroup>
 
     <Button
         android:layout_width="200dp"
         android:layout_height="100dp"
         android:text="Start"
         android:id="@+id/start"
-        android:layout_below="@+id/rgroup"
+        android:textSize="32dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:textSize="32dp" />
+        android:layout_marginBottom="43dp" />
 
 
 </RelativeLayout>
