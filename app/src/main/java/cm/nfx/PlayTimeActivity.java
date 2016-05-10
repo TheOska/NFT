@@ -577,9 +577,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             Toast.makeText(this, "You already in this page!", Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_color_setting) {
             startActivity(new Intent(mActivity, ColorSettingActivity.class));
-        } else if (id == R.id.nav_immune) {
-
-
         } else if (id == R.id.nav_share) {
             Utils.popUpAlertDialogWithQR(mActivity);
         } else if (id == R.id.nav_about_us) {

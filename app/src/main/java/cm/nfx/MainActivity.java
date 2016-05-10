@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this,"Please go to Color Setting first!",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_color_setting) {
             startActivity(new Intent(MainActivity.this, ColorSettingActivity.class));
-        } else if (id == R.id.nav_immune) {
-            Toast.makeText(this,"Please go to Color Setting first!",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_share) {
             Utils.popUpAlertDialogWithQR(mActivity);
         } else if (id == R.id.nav_about_us) {

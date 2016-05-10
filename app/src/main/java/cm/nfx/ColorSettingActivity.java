@@ -181,9 +181,7 @@ public class ColorSettingActivity extends AppCompatActivity implements Navigatio
             }
         } else if (id == R.id.nav_color_setting) {
             Toast.makeText(this,"You already in this page!",Toast.LENGTH_LONG).show();
-        } else if (id == R.id.nav_immune) {
-
-        } else if (id == R.id.nav_share) {
+        }  else if (id == R.id.nav_share) {
             Utils.popUpAlertDialogWithQR(mActivity);
         } else if (id == R.id.nav_about_us) {
             Utils.popUpAlertDialog(mActivity);
