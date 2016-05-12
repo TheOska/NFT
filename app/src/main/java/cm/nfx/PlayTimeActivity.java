@@ -352,7 +352,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             Toast.makeText(this, "Message Writed", Toast.LENGTH_SHORT).show();
 
         } catch (Exception e) {
-            Log.e("formatTag", e.getMessage());
+           // TODO: try again
+            Utils.simpleAlertDialog(mActivity, "Please try again");
         }
 
     }
@@ -396,8 +397,9 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
         } catch (Exception e) {
 
-            Log.e("writeNdefMessage", e.getMessage());
-
+//            Log.e("writeNdefMessage", e.getMessage());
+            //TODO: add notification if exceed  the word limit
+            Utils.simpleAlertDialog(mActivity, "Please try again, maybe you need keep you card connect to your phone more longer time");
         }
 
     }
@@ -433,8 +435,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
 
         } catch (UnsupportedEncodingException e) {
-
-            Log.e("createTextRecord", e.getMessage());
+            Utils.simpleAlertDialog(mActivity, "Please try again");
         }
         // }
         return null;
@@ -476,8 +477,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
         } catch (UnsupportedEncodingException e) {
 
-            Log.e("getTextFromNdefRecord", e.getMessage(), e);
-
+            Utils.simpleAlertDialog(mActivity, "Please try again");
         }
 
         return tagContent;
@@ -582,16 +582,16 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         int id = item.getItemId();
 //startActivity(new Intent(MainActivity.this, BroadcastService.class))
         if (id == R.id.nav_status) {
-            Toast.makeText(this, "You already in this page!", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "You already in this page!", Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_color_setting) {
-            startActivity(new Intent(mActivity, ColorSettingActivity.class));
+//            startActivity(new Intent(mActivity, ColorSettingActivity.class));
         } else if (id == R.id.nav_immune) {
 
 
         } else if (id == R.id.nav_share) {
-            Utils.popUpAlertDialogWithQR(mActivity);
+//            Utils.popUpAlertDialogWithQR(mActivity);
         } else if (id == R.id.nav_about_us) {
-            Utils.popUpAlertDialog(mActivity);
+//            Utils.popUpAlertDialog(mActivity);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
