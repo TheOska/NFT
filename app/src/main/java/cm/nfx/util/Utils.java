@@ -27,7 +27,7 @@ public class Utils
     private static int[] colors = new int[5];
     private static int[] bgcolors = new int[5];
     private final static int sdk = android.os.Build.VERSION.SDK_INT;
-
+    private static AlertDialog mAlertDialogr;
 
 
     public static void changeBgCOlor(Activity mActivity,View v){
@@ -104,7 +104,7 @@ public class Utils
 
     public static void simpleAlertDialog(Activity activity,String msg){
 
-        new AlertDialog.Builder(activity)
+        mAlertDialogr = new AlertDialog.Builder(activity)
                 .setTitle("Notification")
                 .setMessage(msg)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -113,7 +113,32 @@ public class Utils
                     }
                 })
                 .setIcon(android.R.drawable.ic_menu_info_details)
+                .setPositiveButton("Dismiss",
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which){
+                            }
+                        })
                 .show();
+
+    }
+    public static void updateAlertDialog(String updateDialogMessage, final boolean canDismiss){
+        mAlertDialogr.setMessage(updateDialogMessage);
+        mAlertDialogr.setCanceledOnTouchOutside(false);
+        mAlertDialogr.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                //Do stuff, possibly set wantToCloseDialog to true then...
+                if(canDismiss) {
+                    mAlertDialogr.dismiss();
+                    mAlertDialogr.setCanceledOnTouchOutside(true);
+                }
+                //else dialog stays open. Make sure you have an obvious way to close the dialog especially if you set cancellable to false.
+            }
+        });
 
     }
 

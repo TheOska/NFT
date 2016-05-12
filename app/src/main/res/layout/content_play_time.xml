@@ -77,15 +77,15 @@
             android:textOn="Read" />
 
 
-        <Button
-            android:id="@+id/btn_tran_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:background="#009688"
-            android:text="Transfer Time"
-            android:textColor="#000" />
+        <!--<Button-->
+            <!--android:id="@+id/btn_tran_time"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:background="#009688"-->
+            <!--android:text="Transfer Time"-->
+            <!--android:textColor="#000" />-->
 
         <TextView
             android:layout_width="match_parent"

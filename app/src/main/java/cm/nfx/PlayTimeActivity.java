@@ -46,6 +46,8 @@ import android.widget.ToggleButton;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import cm.nfx.util.BroadcastService;
@@ -79,12 +81,13 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     private Toolbar mToolbar;
     boolean hasNFC = false;
 
-    private View btnView;
     private long TAG_ONE_MINUTE = 60000;
     BroadcastService mBroadcastService;
     private Activity mActivity;
     private NavigationView navigationView;
-
+    Timer myTimer;
+    int countThreeSec;
+    boolean canRead = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,21 +111,11 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             initNFC();
         }
         handleToggleBtn();
-        handleTranTimeBtn();
-        Utils.changeBgCOlor(mActivity,btnTranTime);
+//        Utils.changeBgCOlor(mActivity,btnTranTime);
         View header = navigationView.getHeaderView(0);
         Utils.changeToTitleCOlor(mActivity, header);
         registerReceiver(finishActivity, new IntentFilter("finishActivity"));
 
-    }
-
-    private void handleTranTimeBtn() {
-        btnTranTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(PlayTimeActivity.this, TranTime.class));
-            }
-        });
     }
 
     private void findAllView() {
@@ -134,7 +127,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
         readNFCMessage = (TextView) findViewById(R.id.nfc_read_text);
         writeCardHints = (TextView) findViewById(R.id.hints_1);
         txtTagContentReduceTime = (EditText) findViewById(R.id.txt_tag_reduce_time);
-        btnTranTime = (Button) findViewById(R.id.btn_tran_time);
         // read will show
         readCardHints = (TextView) findViewById(R.id.hints_2);
 
@@ -148,21 +140,14 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 // current is write
 
                 if (!tglReadWrite.isChecked()) {
-                    txtTagContent.setVisibility(View.VISIBLE);
-                    txtTagContentReduceTime.setVisibility(View.VISIBLE);
-                    writeCardHints.setVisibility(View.VISIBLE);
-
-                    readCardHints.setVisibility(View.GONE);
-
+                    toggleBtnStateWRITE();
                 } else {
-                    txtTagContent.setVisibility(View.GONE);
-                    txtTagContentReduceTime.setVisibility(View.GONE);
-                    writeCardHints.setVisibility(View.GONE);
-                    readCardHints.setVisibility(View.VISIBLE);
+                    toggleBtnStateREAD();
                 }
             }
         });
     }
+
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -390,7 +375,10 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
 
                 Toast.makeText(this, "Tag writen!", Toast.LENGTH_SHORT).show();
-
+                tglReadWrite.setChecked(true);
+                txtTagContentReduceTime.setText("");
+                txtTagContent.setText("");
+                toggleBtnStateREAD();
 
             }
 
@@ -402,6 +390,21 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             Utils.simpleAlertDialog(mActivity, "Please try again, maybe you need keep you card connect to your phone more longer time");
         }
 
+    }
+
+
+    private void toggleBtnStateWRITE() {
+        txtTagContent.setVisibility(View.VISIBLE);
+        txtTagContentReduceTime.setVisibility(View.VISIBLE);
+        writeCardHints.setVisibility(View.VISIBLE);
+        readCardHints.setVisibility(View.GONE);
+    }
+
+    private void toggleBtnStateREAD() {
+        txtTagContent.setVisibility(View.GONE);
+        txtTagContentReduceTime.setVisibility(View.GONE);
+        writeCardHints.setVisibility(View.GONE);
+        readCardHints.setVisibility(View.VISIBLE);
     }
 
 
@@ -487,7 +490,10 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
     private void readTextFromMessage(NdefMessage ndefMessage) {
         NdefRecord[] ndefRecords = ndefMessage.getRecords();
-        if (ndefRecords != null && ndefRecords.length > 0) {
+        if (ndefRecords != null && ndefRecords.length > 0 && canRead) {
+            myTimer=new Timer();
+            countThreeSec = 3;
+
             NdefRecord ndefRecord = ndefRecords[0];
             String tagContent = "";
             tagContent = getTextFromNdefRecord(ndefRecord);
@@ -510,13 +516,65 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 //  readNFCMessage.setText(tagContent);
 
             }
-            if (tagContent.toString().equals(TAG_ADD_CARD))
+            if (tagContent.toString().equals(TAG_ADD_CARD)) {
                 mBroadcastService.setIncreaseTimeMilliSec(TAG_ONE_MINUTE);
 
-            if (tagContent.toString().equals(TAG_MINUS_CARD))
+                myTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                canRead = false;
+                                if(countThreeSec == 0)
+                                {
+                                    canRead = true;
+                                    myTimer.cancel();
+                                    Utils.updateAlertDialog("Click to dismiss" ,true );
+
+                                }else
+                                    Utils.updateAlertDialog("Your time increased! :) \n Please wait for "+ countThreeSec+" seconds to preform next read if you have",false );
+//                                Utils.simpleAlertDialog(mActivity, "Your time increased! :) Please wait for "+countThreeSec+"seconds to preform next read if you have");
+                                --countThreeSec;
+                            }
+                        });
+                    }
+                }, 0, 1000);
+            }
+            if (tagContent.toString().equals(TAG_MINUS_CARD)) {
                 mBroadcastService.setDecreaseTimeMilliSec(TAG_ONE_MINUTE);
+                myTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                canRead = false;
+                                if(countThreeSec == 0)
+                                {
+                                    canRead = true;
+                                    Utils.updateAlertDialog("Click to dismiss" ,true );
+                                    myTimer.cancel();
+                                }else
+                                    Utils.updateAlertDialog("Your time decreased! :( \n Please wait for "+ countThreeSec+" seconds to preform next read if you have",false );
+//                                Utils.simpleAlertDialog(mActivity, "Your time increased! :) Please wait for "+countThreeSec+"seconds to preform next read if you have");
+                                --countThreeSec;
+                            }
+                        });
+                    }
+                }, 0, 1000);
+            }
             Log.i("oskackh", "content" + tagContent);
 //            mBroadcastReceiver.set
+
+
+
+
+
         } else {
             Toast.makeText(this, "No NDEF records found!", Toast.LENGTH_SHORT).show();
         }
@@ -675,11 +733,11 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
             } else if (currentNum == 0) {
 
                 getIntent().removeExtra("current");
-                Utils.simpleAlertDialog(mActivity, "Your time increased! :) ");
+                Utils.simpleAlertDialog(mActivity, "Your time increased! :) Please wait for 3 second to preform next read if you have");
 
             } else if (currentNum == 1) {
                 getIntent().removeExtra("current");
-                Utils.simpleAlertDialog(mActivity, "Your time decreased! :( ");
+                Utils.simpleAlertDialog(mActivity, "Your time decreased! :( Please wait for 3 second to preform next read if you have ");
 
             }
         }
