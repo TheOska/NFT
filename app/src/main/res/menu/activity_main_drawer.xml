@@ -9,9 +9,6 @@
         <item
             android:id="@+id/nav_color_setting"
             android:title="Color setting" />
-        <item
-            android:id="@+id/nav_immune"
-            android:title="Immune x 0" />
 
     </group>
 

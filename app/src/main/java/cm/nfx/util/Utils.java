@@ -125,7 +125,7 @@ public class Utils
     }
     public static void updateAlertDialog(String updateDialogMessage, final boolean canDismiss){
         mAlertDialogr.setMessage(updateDialogMessage);
-        mAlertDialogr.setCanceledOnTouchOutside(false);
+//        mAlertDialogr.setCanceledOnTouchOutside(false);
         mAlertDialogr.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -134,7 +134,7 @@ public class Utils
                 //Do stuff, possibly set wantToCloseDialog to true then...
                 if(canDismiss) {
                     mAlertDialogr.dismiss();
-                    mAlertDialogr.setCanceledOnTouchOutside(true);
+//                    mAlertDialogr.setCanceledOnTouchOutside(true);
                 }
                 //else dialog stays open. Make sure you have an obvious way to close the dialog especially if you set cancellable to false.
             }

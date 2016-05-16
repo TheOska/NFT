@@ -159,7 +159,6 @@ public class TranTime extends AppCompatActivity implements NfcAdapter.CreateNdef
             // Handle the camera action
         } else if (id == R.id.nav_color_setting) {
 
-        } else if (id == R.id.nav_immune) {
 
         } else if (id == R.id.nav_share) {
 

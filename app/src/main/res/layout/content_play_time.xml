@@ -100,6 +100,8 @@
             android:layout_height="wrap_content"
             android:text="Read other player card. (Remind you that you can always use Immune Card to not read one card if you got one :)"
             android:id="@+id/hints_2"
+            android:textSize="25dp"
+            android:textColor="#f27b7b"
             android:layout_alignTop="@+id/nfc_read_text"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>

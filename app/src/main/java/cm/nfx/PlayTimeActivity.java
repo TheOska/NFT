@@ -73,7 +73,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
     private String substrNum = "";
 
     private TextView readNFCMessage, writeCardHints, readCardHints;
-
+    private boolean issetTxtTagContentReduceTime = false;
+    private boolean successWrite = false;
     NfcAdapter nfcAdapter;
     ToggleButton tglReadWrite;
     private Button btnTranTime;
@@ -289,7 +290,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 String passMessage = "";
                 if (!txtTagContentReduceTime.getText().toString().isEmpty()) {
-                    mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(txtTagContentReduceTime.getText().toString()) * TAG_ONE_MINUTE);
+                    issetTxtTagContentReduceTime = true;
+
 
                     if (Utils.identity == 1) {
                         passMessage = txtTagContentReduceTime.getText().toString() + MESSAGE_DIVIDER;
@@ -304,6 +306,16 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                 NdefMessage ndefMessage = createNdefMessage(passMessage + "");
 
                 writeNdefMessage(tag, ndefMessage);
+                if(issetTxtTagContentReduceTime && successWrite){
+                    mBroadcastService.setDecreaseTimeMilliSec(Long.parseLong(txtTagContentReduceTime.getText().toString()) * TAG_ONE_MINUTE);
+                    tglReadWrite.setChecked(true);
+                    txtTagContentReduceTime.setText("");
+                    txtTagContent.setText("");
+                    toggleBtnStateREAD();
+                }
+                issetTxtTagContentReduceTime = false;
+                successWrite = false;
+
             }
 
         }
@@ -368,18 +380,13 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                     return;
                 }
 
-
+                successWrite = true;
                 ndef.writeNdefMessage(ndefMessage);
 
                 ndef.close();
 
 
                 Toast.makeText(this, "Tag writen!", Toast.LENGTH_SHORT).show();
-                tglReadWrite.setChecked(true);
-                txtTagContentReduceTime.setText("");
-                txtTagContent.setText("");
-                toggleBtnStateREAD();
-
             }
 
 
@@ -387,7 +394,8 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 
 //            Log.e("writeNdefMessage", e.getMessage());
             //TODO: add notification if exceed  the word limit
-            Utils.simpleAlertDialog(mActivity, "Please try again, maybe you need keep you card connect to your phone more longer time");
+            Utils.simpleAlertDialog(mActivity, "Please try again, \n\n maybe you need keep your card connect to your phone more longer time");
+            successWrite = false;
         }
 
     }
@@ -535,7 +543,7 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
                                     Utils.updateAlertDialog("Click to dismiss" ,true );
 
                                 }else
-                                    Utils.updateAlertDialog("Your time increased! :) \n Please wait for "+ countThreeSec+" seconds to preform next read if you have",false );
+                                    Utils.updateAlertDialog("Your time increased! :) \n\n Please wait for "+ countThreeSec+" seconds",false );
 //                                Utils.simpleAlertDialog(mActivity, "Your time increased! :) Please wait for "+countThreeSec+"seconds to preform next read if you have");
                                 --countThreeSec;
                             }
@@ -643,9 +651,6 @@ public class PlayTimeActivity extends AppCompatActivity implements NavigationVie
 //            Toast.makeText(this, "You already in this page!", Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_color_setting) {
 //            startActivity(new Intent(mActivity, ColorSettingActivity.class));
-        } else if (id == R.id.nav_immune) {
-
-
         } else if (id == R.id.nav_share) {
 //            Utils.popUpAlertDialogWithQR(mActivity);
         } else if (id == R.id.nav_about_us) {

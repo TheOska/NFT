@@ -22,7 +22,7 @@ public class BroadcastService extends Service {
     Intent bi = new Intent(COUNTDOWN_BR);
 
     CountDownTimer cdt = null;
-    private long startTime = 1000000;
+    private long startTime = 1806666;
     private long totalTimeInMilliSec = 360000;
 
     IBinder mIBinder = new LocalBinder();
